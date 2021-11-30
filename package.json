@@ -1,0 +1,41 @@
+{
+	"name": "astro-headers",
+	"version": "0.0.1",
+	"description": "Collection of headers for astro",
+	"homepage": "https://github.com/warpsio/astro-headers",
+	"bugs": {
+		"url": "https://github.com/warpsio/astro-headers/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/warpsio/astro-headers"
+	},
+	"files": [
+		"src/index.js",
+		"src/Fullscreen.astro",
+		"src/Simple.astro"
+	],
+	"exports": "./src/index.js",
+	"keywords": [
+		"astro-component",
+		"astro"
+	],
+	"author": "Giulio Zanchetta",
+	"license": "MIT",
+	"scripts": {
+		"dev": "astro dev",
+		"preview": "astro preview",
+		"format": "yarn prettier -w ./src",
+		"release": "standard-version"
+	},
+	"devDependencies": {
+		"astro": "^0.21.4",
+		"prettier": "^2.4.1",
+		"prettier-plugin-astro": "^0.0.9",
+		"standard-version": "^9.3.2"
+	},
+	"dependencies": {
+		"astro-image": "^0.0.1",
+		"astro-localization": "^0.0.1"
+	}
+}
