@@ -29,7 +29,7 @@
 		"release": "standard-version"
 	},
 	"devDependencies": {
-		"astro": "^0.21.4",
+		"astro": "^0.21.10",
 		"prettier": "^2.4.1",
 		"prettier-plugin-astro": "^0.0.9",
 		"standard-version": "^9.3.2"

@@ -14,9 +14,11 @@ interface Props {
 	sticky: boolean;
 	hideOnScroll: boolean;
 	logo: string;
+	showThemeToggle: boolean;
+	showLanguageSwitcher: boolean;
 }
 
-const { navItems, pathname, logo, sticky = true, hideOnScroll = true } = Astro.props as props;
+const { navItems, pathname, logo, showThemeToggle = true, showLanguageSwitcher = true, sticky = true, hideOnScroll = true } = Astro.props as props;
 ---
 
 <header id="header" class={`${sticky && "sticky"} ${hideOnScroll && "scroll-hide"} header`}>
@@ -40,12 +42,16 @@ const { navItems, pathname, logo, sticky = true, hideOnScroll = true } = Astro.p
 						<a {href} aria-current={pathname === href} class="menu-link" role="menuitem"><Translate key={title} /></a>
 					</li>
 				))}
+				{showThemeToggle && 
 				<li class="menu-item" role="none">
 					<ThemeToggle />
 				</li>
+				}
+				{showLanguageSwitcher &&
 				<li class="menu-item" role="none">
 					<LanguageSwitcher />
 				</li>
+				}
 			</ul>
 		</nav>
 
