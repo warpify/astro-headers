@@ -1,7 +1,7 @@
 ---
-import { Logo } from "./components/Logo.astro";
-import { ThemeToggle, LanguageSwitcher, Translate } from "astro-localization";
+import {  LanguageSwitcher, Translate } from "astro-localization";
 import { Image } from "astro-image";
+import { ThemeToggle } from "astro-theme";
 
 interface NavItem {
 	title: string;
@@ -16,9 +16,10 @@ interface Props {
 	logo: string;
 	showThemeToggle: boolean;
 	showLanguageSwitcher: boolean;
+	localizationMap: Object;
 }
 
-const { navItems, pathname, logo, showThemeToggle = true, showLanguageSwitcher = true, sticky = true, hideOnScroll = true } = Astro.props as props;
+const { navItems, pathname, logo, localizationMap = {}, showThemeToggle = true, showLanguageSwitcher = true, sticky = true, hideOnScroll = true } = Astro.props as props;
 ---
 
 <header id="header" class={`${sticky && "sticky"} ${hideOnScroll && "scroll-hide"} header`}>
@@ -39,7 +40,7 @@ const { navItems, pathname, logo, showThemeToggle = true, showLanguageSwitcher =
 			<ul id="navbar-menu" class="navbar-menu menu" role="menu">
 				{navItems.map(({ title, href, type, items }) => (
 					<li class="menu-item" role="none">
-						<a {href} aria-current={pathname === href} class="menu-link" role="menuitem"><Translate key={title} /></a>
+						<a {href} aria-current={pathname === href} class="menu-link" role="menuitem"><Translate key={title} map={localizationMap} /></a>
 					</li>
 				))}
 				{showThemeToggle && 
