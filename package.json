@@ -1,7 +1,7 @@
 {
 	"name": "astro-headers",
-	"version": "0.0.1",
-	"description": "Collection of headers for astro",
+	"version": "0.0.3",
+	"description": "Collection of configurable headers for astro",
 	"homepage": "https://github.com/warpsio/astro-headers",
 	"bugs": {
 		"url": "https://github.com/warpsio/astro-headers/issues"
@@ -12,8 +12,7 @@
 	},
 	"files": [
 		"src/index.js",
-		"src/Fullscreen.astro",
-		"src/Simple.astro"
+		"src/Header.astro"
 	],
 	"exports": "./src/index.js",
 	"keywords": [
@@ -29,14 +28,15 @@
 		"release": "standard-version"
 	},
 	"devDependencies": {
-		"astro": "^0.22.17",
-		"prettier": "^2.4.1",
-		"prettier-plugin-astro": "^0.0.11",
+		"astro": "latest",
+		"prettier": "^2.5.1",
+		"prettier-plugin-astro": "^0.0.12",
+		"sass": "^1.49.8",
 		"standard-version": "^9.3.2"
 	},
 	"dependencies": {
-		"astro-image": "^0.0.1",
-		"astro-localization": "^0.0.2",
-		"astro-theme": "^0.0.1"
+		"astro-image": "^0.0.2",
+		"astro-theme": "^0.0.2",
+		"astro-localization": "^0.0.3"
 	}
 }

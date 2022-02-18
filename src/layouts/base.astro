@@ -1,5 +1,5 @@
 ---
-import { HeaderSimple } from "../index.js";
+import { Header } from "../index.js";
 import routes from "../data/routes.json";
 
 interface Props {
@@ -18,12 +18,13 @@ const { pathname } = Astro.props as props;
 	</head>
 
 	<body>
-		<HeaderSimple
+		<Header
 			logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/1200px-Logo_NIKE.svg.png"
-			pathname={pathname}
+			{pathname}
 			navItems={routes}
 			sticky={true}
-			hideOnScroll={true} />
+			hideOnScroll={true}
+		/>
 
 		<main id="main">
 			<slot />
