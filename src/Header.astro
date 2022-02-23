@@ -1,7 +1,8 @@
 ---
 import { LanguageSwitcher, Translate } from "astro-localization";
 import { Image } from "astro-image";
-import { ThemeToggle } from "astro-theme";
+import { ThemeSwitcher } from "astro-theme";
+import { Icon } from "astro-icon";
 
 interface NavItem {
 	title: string;
@@ -15,8 +16,9 @@ interface Props {
 	blur: boolean;
 	hideOnScroll: boolean;
 	logo: string;
-	showThemeToggle: boolean;
+	showThemeSwitcher: boolean;
 	showLanguageSwitcher: boolean;
+	hamburgerStyle?: string;
 	lmap: Object;
 }
 
@@ -25,42 +27,81 @@ const {
 	pathname,
 	logo,
 	lmap = {},
-	showThemeToggle = true,
+	showThemeSwitcher = true,
 	showLanguageSwitcher = true,
 	sticky = true,
 	blur = true,
-	hideOnScroll = true
+	hideOnScroll = true,
+	hamburgerStyle = "minimal"
 } = Astro.props as Props;
 
 const navItemsLength = navItems.length;
 ---
 
 <header id="header" class={`${sticky ? "sticky" : ""} ${blur ? "blur" : ""} ${hideOnScroll ? "scroll-hide" : ""} header`}>
-	<div class="navbar-container">
+	<div class="navbar-wrapper">
 		<nav class="navbar container">
 			<a class="logo-link" href="/">
 				{logo ? <Image class="header-logo" src={logo} /> : <h1>LOGO</h1>}
 			</a>
 
-			<button id="navbar-toggle" class="navbar-toggle" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Toggle navigation">
-				<div class="hamburger" aria-hidden="true">
-					<div class="hamburger-item"></div>
-					<div class="hamburger-item"></div>
-					<div class="hamburger-item"></div>
-				</div>
-			</button>
+			{hamburgerStyle == "minimal" ? (
+				<button
+					id="navbar-toggle"
+					class="navbar-toggle minimal"
+					type="button"
+					aria-haspopup="true"
+					aria-expanded="false"
+					aria-label="Toggle navigation"
+				>
+					<input class="hamburger-minimal" type="checkbox" />
+					<div>
+						<span></span>
+						<span></span>
+					</div>
+				</button>
+			) : (
+				<button id="navbar-toggle" class="navbar-toggle playful">
+					<span></span>
+					<span></span>
+					<span></span>
+				</button>
+			)}
 
 			<ul id="navbar-menu" class="navbar-menu" role="menu">
 				{navItems.map(({ title, href, type, items }) => (
 					<li class="menu-item" role="menuitem">
-						<a {href} aria-current={pathname === href} class="menu-link">
-							<Translate {lmap} key={title} />
-						</a>
+						<span>
+							<a {href} aria-current={pathname === href} class="menu-link">
+								<Translate {lmap} key={title} />
+							</a>
+							{items && items.length && (
+								<>
+								<div class="submenu-toggle" onclick="toggleSubmenu(this)">
+									<Icon name="simple-line-icons:arrow-right"/>
+								</div>
+								</>
+							)}
+						</span>
+
+						{items && (
+							<div class="sub-menu-container">
+								<ul class="sub-menu">
+									{items.map(({ title, href, type }) => (
+										<li class="sub-menu-item" role="menuitem">
+											<a {href} aria-current={pathname === href} class="sub-menu-link">
+												<Translate {lmap} key={title} />
+											</a>
+										</li>
+									))}
+								</ul>
+							</div>
+						)}
 					</li>
 				))}
-				{showThemeToggle && (
+				{showThemeSwitcher && (
 					<li class="menu-item" role="menuitem">
-						<ThemeToggle />
+						<ThemeSwitcher />
 					</li>
 				)}
 				{showLanguageSwitcher && (
@@ -73,105 +114,131 @@ const navItemsLength = navItems.length;
 
 		<div id="header-overlay" class="header-overlay"></div>
 	</div>
-	<script>
-		const header = document.getElementById("header");
-		const navbarMenu = document.getElementById("navbar-menu");
-		const overlay = document.getElementById("header-overlay");
-		const toggleMenuButton = document.getElementById("navbar-toggle");
+</header>
 
-		let preventMneuLinksFronFoucs;
-		var lastKnownScrollY = 0;
-		var currentScrollY = 0;
-		var ticking = false;
-		var idOfHeader = "header";
-		var eleHeader = null;
-		const classes = {
-			pinned: "header-pin",
-			unpinned: "header-unpin"
-		};
+<script hoist>
+	let preventMenuLinksFronFoucs;
+	var lastKnownScrollY = 0;
+	var currentScrollY = 0;
+	var ticking = false;
 
-		function onScroll() {
-			currentScrollY = window.pageYOffset;
-			requestTick();
+	var header = null;
+	var navbarMenu = null;
+	var overlay = null;
+	var toggleMenuButton = null;
+
+	const classes = {
+		pinned: "header-pin",
+		unpinned: "header-unpin"
+	};
+
+	function onScroll() {
+		currentScrollY = window.pageYOffset;
+		requestTick();
+	}
+	function requestTick() {
+		if (!ticking) {
+			requestAnimationFrame(update);
 		}
-		function requestTick() {
-			if (!ticking) {
-				requestAnimationFrame(update);
+		ticking = true;
+	}
+	function pin() {
+		if (header.classList.contains(classes.unpinned)) {
+			header.classList.remove(classes.unpinned);
+			header.classList.add(classes.pinned);
+		}
+	}
+	function unpin() {
+		if (header.classList.contains(classes.pinned) || !header.classList.contains(classes.unpinned)) {
+			header.classList.remove(classes.pinned);
+			header.classList.add(classes.unpinned);
+		}
+	}
+	function update() {
+		if (currentScrollY < lastKnownScrollY) {
+			pin();
+		} else if (currentScrollY > lastKnownScrollY) {
+			unpin();
+		}
+		lastKnownScrollY = currentScrollY;
+		ticking = false;
+	}
+	function openMenu() {
+		toggleMenuButton.setAttribute("aria-expanded", "true");
+		header.classList.add("open");
+		var input = toggleMenuButton.querySelector("input");
+		if (input) {
+			input.setAttribute("checked", "checked");
+			input.checked = true;
+		}
+
+		navbarMenu.querySelectorAll("a").forEach((link) => {
+			link.setAttribute("tabindex", "0");
+		});
+
+		document.addEventListener("keydown", handleKeyDown);
+
+		function handleKeyDown(e) {
+			if (e.code == "Tab") {
+				menuFocusSystem();
+				document.removeEventListener("keydown", handleKeyDown);
 			}
-			ticking = true;
 		}
-		function update() {
-			if (currentScrollY < lastKnownScrollY) {
-				pin();
-			} else if (currentScrollY > lastKnownScrollY) {
-				unpin();
+	}
+	function closeMenu() {
+		toggleMenuButton.setAttribute("aria-expanded", "false");
+		header.classList.remove("open");
+		var input = toggleMenuButton.querySelector("input");
+		if (input) {
+			input.removeAttribute("checked");
+			input.checked = false;
+		}
+
+		navbarMenu.querySelectorAll("a").forEach((link) => {
+			link.setAttribute("tabindex", "-1");
+		});
+	}
+	function menuFocusSystem() {
+		const firstChild = navbarMenu.querySelectorAll("a")[0];
+		const lastChild = navbarMenu.querySelectorAll("a")[navbarMenu.childElementCount - 1];
+
+		setTimeout(() => {
+			navbarMenu.querySelectorAll("a")[0].focus();
+		}, 100);
+
+		navbarMenu.addEventListener("focusin", function (e) {
+			if (e.target == lastChild) {
+				e.target.addEventListener("focusout", function () {
+					toggleMenuButton.focus();
+				});
 			}
-			lastKnownScrollY = currentScrollY;
-			ticking = false;
+		});
+	}
+	function toggleSubmenu(subMenuToggle) {
+		const submenu = subMenuToggle.parentElement.nextElementSibling;
+		const subMenuToggleSvg = subMenuToggle.querySelector("svg");
+		if (getComputedStyle(submenu).display == "none") {
+			submenu.style.display = "block";
+			subMenuToggleSvg.style.transform = "rotate(90deg)";
+		} else {
+			submenu.style.display = "none";
+			subMenuToggleSvg.style.transform = "rotate(0deg)";
 		}
-		function pin() {
-			if (eleHeader.classList.contains(classes.unpinned)) {
-				eleHeader.classList.remove(classes.unpinned);
-				eleHeader.classList.add(classes.pinned);
-			}
-		}
-		function unpin() {
-			if (eleHeader.classList.contains(classes.pinned) || !eleHeader.classList.contains(classes.unpinned)) {
-				eleHeader.classList.remove(classes.pinned);
-				eleHeader.classList.add(classes.unpinned);
-			}
-		}
-		function openMneu() {
-			toggleMenuButton.setAttribute("aria-expanded", "true");
-			header.classList.add("open");
+	}
 
-			navbarMenu.querySelectorAll("a").forEach((link) => {
-				link.setAttribute("tabindex", "0");
-			});
-
-			document.addEventListener("keydown", handleKeyDown);
-
-			function handleKeyDown(e) {
-				if (e.code == "Tab") {
-					menuFocusSystem();
-					document.removeEventListener("keydown", handleKeyDown);
-				}
-			}
-		}
-
-		function closeMenu() {
-			toggleMenuButton.setAttribute("aria-expanded", "false");
-			header.classList.remove("open");
-
-			navbarMenu.querySelectorAll("a").forEach((link) => {
-				link.setAttribute("tabindex", "-1");
-			});
-		}
-
-		function menuFocusSystem() {
-			const firstChild = navbarMenu.querySelectorAll("a")[0];
-			const lastChild = navbarMenu.querySelectorAll("a")[navbarMenu.childElementCount - 1];
-
-			setTimeout(() => {
-				navbarMenu.querySelectorAll("a")[0].focus();
-			}, 100);
-
-			navbarMenu.addEventListener("focusin", function (e) {
-				if (e.target == lastChild) {
-					e.target.addEventListener("focusout", function () {
-						toggleMenuButton.focus();
-					});
-				}
-			});
-		}
+	window.addEventListener("load", (event) => {
+		header = document.getElementById("header");
+		navbarMenu = document.getElementById("navbar-menu");
+		overlay = document.getElementById("header-overlay");
+		toggleMenuButton = document.getElementById("navbar-toggle");
 
 		window.addEventListener("resize", () => {
-			preventMneuLinksFronFoucs();
+			preventMenuLinksFronFoucs();
 		});
 
 		toggleMenuButton.addEventListener("click", function () {
 			if (toggleMenuButton.getAttribute("aria-expanded") == "false") {
-				openMneu();
+				openMenu();
 			} else {
 				closeMenu();
 			}
@@ -187,6 +254,8 @@ const navItemsLength = navItems.length;
 			}
 		});
 
+		document.addEventListener("scroll", onScroll, false);
+
 		(preventMneuLinksFronFoucs = function () {
 			if (window.innerWidth < 640) {
 				navbarMenu.querySelectorAll("a").forEach((link) => {
@@ -198,16 +267,12 @@ const navItemsLength = navItems.length;
 				});
 			}
 		})();
-
-		eleHeader = document.getElementById(idOfHeader);
-		document.addEventListener("scroll", onScroll, false);
-	</script>
-</header>
+	});
+</script>
 
 <style lang="scss">
 	/* Header */
-
-	header.header {
+	header {
 		position: absolute;
 		z-index: 100;
 		width: 100%;
@@ -217,16 +282,19 @@ const navItemsLength = navItems.length;
 		&.open {
 			background-color: var(--color-bg-alt, white);
 
-			.navbar-toggle {
-				/* Hamburger animation */
-				.hamburger-item:first-child {
-					width: 70%;
+			.navbar .navbar-toggle.playful {
+				span:nth-of-type(1) {
+					transform-origin: bottom;
+					transform: rotatez(45deg) translate(8px, 0px);
 				}
-				.hamburger-item:nth-child(2) {
-					width: 90%;
+				span:nth-of-type(2) {
+					transform-origin: top;
+					transform: rotatez(-45deg);
 				}
-				.hamburger-item:last-child {
-					width: 55%;
+				span:nth-of-type(3) {
+					transform-origin: bottom;
+					width: 60%;
+					transform: translate(25px, -14px) rotatez(45deg);
 				}
 			}
 		}
@@ -248,10 +316,10 @@ const navItemsLength = navItems.length;
 			display: contents;
 		}
 
-		.navbar-container {
+		.navbar-wrapper {
 			width: 100%;
 			height: 100%;
-			background-color: inherit;
+			background-color: white;
 
 			/* Navbar */
 			.navbar {
@@ -263,11 +331,111 @@ const navItemsLength = navItems.length;
 				background-color: inherit;
 
 				/* Toggle menu button */
-				.navbar-toggle {
+				.navbar-toggle.minimal {
+					position: relative;
 					background-color: transparent;
 					cursor: pointer;
 					padding: 0;
 					border: none;
+					width: 50px;
+					height: 50px;
+
+					.hamburger-minimal {
+						display: block;
+						width: 100%;
+						height: 100%;
+						cursor: pointer;
+						z-index: 2;
+						-webkit-touch-callout: none;
+						position: absolute;
+						opacity: 0;
+						top: 0;
+					}
+					div {
+						margin: auto;
+						position: absolute;
+						top: 0;
+						right: 0;
+						bottom: 0;
+						width: 22px;
+						height: 12px;
+					}
+					span {
+						position: absolute;
+						display: block;
+						width: 100%;
+						height: 2px;
+						background-color: var(--bar-bg, #000);
+						border-radius: 1px;
+						transition: all 0.2s cubic-bezier(0.1, 0.82, 0.76, 0.965);
+
+						&:first-of-type {
+							top: 0;
+						}
+						&:last-of-type {
+							bottom: 0;
+						}
+					}
+					&.active,
+					.hamburger-minimal:checked + div {
+						span {
+							&:first-of-type {
+								transform: rotate(45deg);
+								top: 5px;
+							}
+							&:last-of-type {
+								transform: rotate(-45deg);
+								bottom: 5px;
+							}
+						}
+					}
+
+					&.active:hover span:first-of-type,
+					&.active:hover span:last-of-type,
+					&:hover .hamburger-minimal:checked + div span:first-of-type,
+					&:hover .hamburger-minimal:checked + div span:last-of-type {
+						width: 22px;
+					}
+
+					&:hover {
+						// no need hover effect on mobile.
+						@media (hover: hover) {
+							span:first-of-type {
+								width: 26px;
+							}
+
+							span:last-of-type {
+								width: 12px;
+							}
+						}
+					}
+				}
+
+				.navbar-toggle.playful {
+					display: flex;
+					flex-direction: column;
+					width: 70px;
+					cursor: pointer;
+					background: transparent;
+					border: none;
+					transform: scale(0.6);
+
+					span {
+						background: #000;
+						border-radius: 10px;
+						height: 7px;
+						margin: 7px 0;
+						transition: 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+					}
+					span:nth-of-type(1) {
+						width: 50%;
+					}
+					span:nth-of-type(2) {
+						width: 100%;
+					}
+					span:nth-of-type(3) {
+						width: 75%;
+					}
 				}
 			}
 		}
@@ -276,6 +444,7 @@ const navItemsLength = navItems.length;
 			height: 100%;
 			max-width: 50px;
 			padding: 0.5rem 0;
+			object-fit: contain;
 		}
 
 		.hamburger {
@@ -308,13 +477,13 @@ const navItemsLength = navItems.length;
 		}
 	}
 
-	@media screen and (min-width: 40em) {
+	@media screen and (hover: hover) and (min-width: 60em) {
 		header.header {
 			background-color: transparent;
 		}
 	}
 
-	@media screen and (min-width: 60em) {
+	@media screen and (hover: hover) and (min-width: 60em) {
 		.navbar-toggle {
 			display: none;
 		}
@@ -325,11 +494,29 @@ const navItemsLength = navItems.length;
 		list-style: none;
 		margin-left: 0;
 		padding-left: 0;
+
+		.sub-menu-container {
+			display: none;
+			position: absolute;
+			padding-top: 1rem;
+		}
+
+		.sub-menu {
+			list-style: none;
+			margin-left: 0;
+			padding: 1rem 1.5rem;
+			background: #fff;
+			border-radius: 0.8rem;
+			box-shadow: 0px 0px 10px 0px hsl(0deg 0% 0% / 10%);
+			white-space: nowrap;
+		}
 	}
 
-	@media screen and (max-width: 60em) {
+	@media screen and (hover: none), (max-width: 60em) {
 		.navbar-menu {
 			position: fixed;
+			overflow: auto;
+			max-height: calc(90vh - 6rem);
 			top: -100%;
 			left: 0;
 			z-index: -1;
@@ -339,6 +526,10 @@ const navItemsLength = navItems.length;
 			padding: 2rem 0;
 			visibility: hidden;
 			transition: all 500ms ease-in-out;
+
+			.sub-menu-container {
+				position: relative;
+			}
 		}
 
 		header.header.open .navbar-menu {
@@ -348,20 +539,43 @@ const navItemsLength = navItems.length;
 		}
 	}
 
-	.menu-item:not(:last-child) {
+	.submenu-toggle {
+		display: inline-block;
+		width: 0.4rem;
+		margin-left: 0.6rem;
+		color: black;
+
+		svg {
+			transition: 0.2s;
+		}
+	}
+
+	.menu-item {
+		position: relative;
+	}
+
+	@media screen and (hover: hover) and (min-width: 60em) {
+		.menu-item:hover .sub-menu-container {
+			display: block;
+		}
+	}
+
+	.menu-item:not(:last-child),
+	.sub-menu-item:not(:last-child) {
 		margin-bottom: 1.5rem;
 	}
 
-	@media screen and (min-width: 60em) {
+	@media screen and (hover: hover) and (min-width: 60em) {
+		.submenu-toggle {
+			display: none;
+		}
 		.menu-item {
 			display: inline-block;
 			vertical-align: middle;
 		}
-
 		.menu-item:not(:last-child) {
 			margin: 0 0.6rem;
 		}
-
 		header.header {
 			&.blur {
 				&.header-active {
@@ -372,53 +586,11 @@ const navItemsLength = navItems.length;
 		}
 	}
 
-	a.menu-link {
-		position: relative;
-		padding: 0 0.3rem;
-		transition: opacity 300ms ease-in-out;
-
-		&:not(.cta)::before {
-			content: "";
-			position: absolute;
-			left: 0;
-			bottom: -0.4rem;
-			width: 0;
-			height: 0.25rem;
-			border-radius: 1rem;
-			background-color: var(--color-primary, #a365db);
-			transition: width 300ms ease-in-out;
-		}
-
-		&:hover {
-			opacity: 0.8;
-
-			&::before {
-				width: 100%;
-			}
-		}
-
-		/* Active link */
-		&.active {
-			font-weight: var(--weight-bolder, 700);
-
-			&::before {
-				width: 100%;
-			}
-		}
-
-		&[aria-current] {
-			font-weight: var(--weight-bolder, 700);
-
-			&::before {
-				width: 100%;
-			}
-		}
-	}
-
-	@media screen and (max-width: 60em) {
+	@media screen and (hover: none), (max-width: 60em) {
 		header.header.open .header-overlay {
 			visibility: visible;
-			opacity: 0.8;
+			opacity: 0.5;
+			backdrop-filter: blur(10px);
 		}
 	}
 </style>

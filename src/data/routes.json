@@ -1,36 +1,38 @@
 [
 	{
-		"title": "menu-home",
+		"title": "Home",
 		"href": "/",
 		"type": "link"
 	},
 	{
-		"title": "menu-services",
+		"title": "Services",
 		"href": "/services",
-		"type": "link"
+		"type": "link",
+		"items": [
+			{
+				"title": "Service 1",
+				"href": "/service1",
+				"type": "link"
+			},
+			{
+				"title": "Service 2",
+				"href": "/service2",
+				"type": "link"
+			}
+		]
 	},
 	{
-		"title": "menu-about",
+		"title": "About",
 		"href": "/about",
 		"type": "link"
 	},
 	{
-		"title": "menu-blog",
+		"title": "Blog",
 		"href": "/blog",
 		"type": "link"
 	},
 	{
-		"title": "menu-shop",
-		"href": "/shop",
-		"type": "link"
-	},
-	{
-		"title": "menu-documentation",
-		"href": "/documentation",
-		"type": "link"
-	},
-	{
-		"title": "menu-contact",
+		"title": "Contacts",
 		"href": "/contact",
 		"type": "button"
 	}

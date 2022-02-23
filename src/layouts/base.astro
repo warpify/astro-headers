@@ -6,7 +6,7 @@ interface Props {
 	pathname?: string;
 }
 
-const { pathname } = Astro.props as props;
+const { pathname } = Astro.props as Props;
 ---
 
 <!DOCTYPE html>
@@ -19,7 +19,7 @@ const { pathname } = Astro.props as props;
 
 	<body>
 		<Header
-			logo="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/1200px-Logo_NIKE.svg.png"
+			logo="https://www.pikpng.com/pngl/b/583-5830237_your-logo-retulp-bus-stop-clipart.png"
 			{pathname}
 			navItems={routes}
 			sticky={true}

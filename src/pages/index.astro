@@ -2,5 +2,28 @@
 import Layout from "../layouts/base.astro";
 ---
 
-<Layout>
-</Layout>
+<Layout />
+
+<style global>
+	:root {
+		--color-bg: #dac5a6;
+		--color-text-primary: black;
+	}
+
+	:root[data-theme="dark"] {
+		--color-bg: gray;
+		--color-text-primary: white;
+	}
+
+	body {
+		height: 300vh;
+		background-color: var(--color-bg);
+		color: var(--color-text-primary);
+		margin: 0;
+	}
+	.container {
+		width: var(--container-widht, 90vw);
+		max-width: var(--container-max-width, 90rem);
+		margin: 0 auto;
+	}
+</style>
