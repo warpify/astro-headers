@@ -1,6 +1,7 @@
 ---
 import { Header } from "../index.js";
 import routes from "../data/routes.json";
+import "../style/main.scss";
 
 interface Props {
 	pathname?: string;
@@ -14,7 +15,6 @@ const { pathname } = Astro.props as Props;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="stylesheet" href={Astro.resolve("../style/main.scss")} />
 	</head>
 
 	<body>
@@ -29,11 +29,10 @@ const { pathname } = Astro.props as Props;
 		<main id="main">
 			<slot />
 		</main>
+		<style lang="scss">
+			main {
+				flex: 1 0 0;
+			}
+		</style>
 	</body>
 </html>
-
-<style lang="scss">
-	main {
-		flex: 1 0 0;
-	}
-</style>
